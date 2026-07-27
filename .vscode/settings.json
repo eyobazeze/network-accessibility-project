@@ -1,0 +1,8 @@
+{
+       "python.defaultInterpreterPath": "C:\\Users\\sher khan\\miniconda3\\envs\\urban-analytics\\python.exe",
+       "editor.formatOnSave": true,
+       "files.exclude": {
+           "**/__pycache__": true,
+           "**/.ipynb_checkpoints": true
+       }
+   }

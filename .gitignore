@@ -1,0 +1,5 @@
+data/raw/
+   cache/
+   __pycache__/
+   .ipynb_checkpoints/
+   *.tif
