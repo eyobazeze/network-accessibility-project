@@ -1,0 +1,93 @@
+# 🏥 Network-Based Healthcare & School Accessibility — Addis Ababa
+
+**How much farther is the real walk to a hospital or school than the straight-line distance suggests?**
+
+---
+
+## Overview
+
+This project measures accessibility to healthcare and education facilities across Addis Ababa using **real street-network walking distance**, rather than the straight-line ("as the crow flies") distance most simple accessibility analyses rely on. It's a companion project to my [transit accessibility analysis](https://github.com/eyobazeze/urban-analytics-projects), applying a different analytical method — network analysis instead of buffer analysis — to a related question: who is actually within reasonable reach of essential services?
+
+## Key Findings
+
+| Metric | Value |
+|---|---|
+| Street network size | 71,634 nodes, 201,762 edges (walk network) |
+| Hospitals identified | 131 |
+| Schools identified | 347 |
+| Analysis points | 2,147 (500m population grid, shared with transit project) |
+| Mean straight-line distance to nearest facility | 1,388m |
+| Mean real network walking distance | 1,951m |
+| **Mean network penalty ratio** | **1.52x** |
+| Unreachable points (network gaps) | 0 |
+
+**The headline finding:** real walking distance to the nearest hospital or school is, on average, **52% longer** than straight-line distance would suggest. This "network penalty" comes from the actual shape of the street grid — dead ends, missing crossings, and indirect routes that straight-line measurements simply ignore.
+
+### A robustness check worth noting
+
+I ran this analysis at two different resolutions — first against 10 sub-city centroids, then against the full 2,147-point population grid. The penalty ratio held remarkably steady (1.54x vs. 1.52x) across both, suggesting this "network penalty" is a fairly consistent structural property of Addis Ababa's street layout, not an artifact of which points happen to get sampled. The *absolute* distances, however, differed substantially (571m vs. 1,388m mean straight-line distance) — the coarse sub-city version systematically underestimated real travel distances, since it only sampled a handful of relatively central points and missed the periphery entirely. This is a genuine methodological lesson: resolution matters much more for absolute accessibility numbers than it does for relative/ratio-based findings.
+
+## Methodology
+
+1. **Street network** — Pulled Addis Ababa's full pedestrian-accessible street network from OpenStreetMap via OSMnx (`network_type="walk"`)
+2. **Destinations** — Hospitals and schools identified via OSM amenity tags (`amenity=hospital`, `amenity=school`), reprojected to a metric CRS before computing centroids for polygon-based features
+3. **Origins** — Reused the same 500m population analysis grid from the transit accessibility project, ensuring both projects are directly comparable
+4. **Network distance** — Computed via multi-source Dijkstra shortest-path search (`networkx.multi_source_dijkstra_path_length`) from every origin to its nearest hospital or school, following actual street geometry
+5. **Straight-line comparison** — Computed Euclidean distance from each origin to its nearest destination, for direct comparison against the network-based figure
+
+**Coordinate Reference System:** EPSG:32637 (UTM Zone 37N) for accurate metric distance calculations.
+
+## Maps
+
+`outputs/network_vs_straightline_comparison.png` — side-by-side choropleth comparing straight-line distance and real network walking distance to the nearest hospital/school. The visual gap between the two maps is the "network penalty" made visible.
+
+## Tools & Methods
+
+| Tool | Purpose |
+|---|---|
+| **OSMnx** | Street network + facility data from OpenStreetMap |
+| **NetworkX** | Shortest-path / network distance calculation |
+| **GeoPandas** | Spatial data handling, CRS management |
+| **Rasterio** *(shared data)* | Population grid originally derived from WorldPop raster data |
+| **Matplotlib** | Comparison map generation |
+
+## Data Sources
+
+| Dataset | Source | Notes |
+|---|---|---|
+| Street network | [OpenStreetMap](https://www.openstreetmap.org/) via OSMnx | Pedestrian-accessible ways only |
+| Hospitals & schools | OpenStreetMap via OSMnx | `amenity=hospital`, `amenity=school` tags |
+| Population grid | [WorldPop](https://www.worldpop.org/) (via [transit accessibility project](https://github.com/eyobazeze/urban-analytics-projects)) | Constrained model, ~100m resolution, resampled to 500m grid |
+
+## How to Run
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/eyobazeze/network-accessibility-project.git
+cd network-accessibility-project
+
+# 2. Create and activate the environment
+conda env create -f environment.yml
+conda activate urban-analytics
+
+# 3. Run the analysis
+python network_accessibility_analysis.py
+
+# 4. View outputs
+open outputs/network_vs_straightline_comparison.png
+```
+
+**Note:** this project reuses `population_grid_full.geojson`, generated by the [transit accessibility project](https://github.com/eyobazeze/urban-analytics-projects). Run that project first, or place a copy of its output in `data/processed/` here before running.
+
+## Project Context
+
+Second in a two-part spatial analysis series examining transit and service accessibility in Addis Ababa, applying two distinct methods — buffer-based accessibility and network-based accessibility — to related questions about who is and isn't well-served by the city's infrastructure.
+
+**Related:**
+- [Transit Access & Underserved Areas — Addis Ababa](https://github.com/eyobazeze/urban-analytics-projects)
+
+## Author
+
+**Eyob Azeze** — UI/UX Designer | Urban Tech & Smart Cities | Addis Ababa, Ethiopia
+
+[GitHub](https://github.com/eyobazeze) · [LinkedIn](https://linkedin.com/in/eyobazeze) · [Medium](https://eyobazeze.medium.com) · [Figma](https://figma.com/@eyobazeze)
