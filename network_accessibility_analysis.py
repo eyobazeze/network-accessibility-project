@@ -49,7 +49,7 @@ G_proj = ox.project_graph(G, to_crs=CRS_PROJECTED)
 
 # Reuse your population grid from the WorldPop project if available,
 # otherwise fall back to a fresh grid — adjust path to your real file
-pop_grid = gpd.read_file(DATA_DIR / "processed" / "subcities_with_real_population.geojson")
+pop_grid = gpd.read_file(DATA_DIR / "processed" / "population_grid_full.geojson")
 pop_grid = pop_grid.to_crs(CRS_PROJECTED)
 
 # Get centroid coordinates for matching (works whether pop_grid holds points or polygons)
